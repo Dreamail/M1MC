@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 func main() {
 	args := os.Args
-	/*_, proPath, _, _ := runtime.Caller(0)
-	basePath := path.Base(proPath)*/
+	proPath, _ := filepath.Abs(args[0])
+	basePath := filepath.Dir(proPath)
 
 	classPath := strings.Split(os.Getenv("CLASSPATH"), ":")
-	nClassPath := []string{"/Volumes/PiExDisk/Code/Minecraft/M1MC/lwjglfat.jar"}
+	nClassPath := []string{basePath + "/lwjglfat.jar"}
 
 	for _, v := range classPath {
 		if !strings.Contains(v, "lwjgl") {
