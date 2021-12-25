@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -34,14 +33,16 @@ func main() {
 	cmd.Env = append(os.Environ(), "CLASSPATH="+strings.Join(nClassPath, ":"))
 	cmd.Stdout = os.Stdout
 
-	println(strings.Join(nClassPath, ":"))
+	//println(strings.Join(nClassPath, ":"))
 
-	var stdout bytes.Buffer
+	/*var stdout bytes.Buffer
 
 	err := cmd.Run()
 	println(string(stdout.Bytes()))
 	if err != nil {
 		println(err.Error())
 		return
-	}
+	}*/
+
+	cmd.Run()
 }
