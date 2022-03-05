@@ -49,6 +49,7 @@ func main() {
 		cmd.Env = append(os.Environ(), "CLASSPATH=")
 	}
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	//println(strings.Join(nClassPath, ":"))
 
