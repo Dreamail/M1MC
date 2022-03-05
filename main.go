@@ -16,8 +16,8 @@ func main() {
 	classPathIndex := 0
 
 	nClassPath := make([]string, 0)
-	filepath.Walk(basePath+"/lwjgl/", func(path string, info fs.FileInfo, err error) error {
-		if strings.Contains(info.Name(), "lwjgl") {
+	filepath.Walk(basePath+"/libraries/", func(path string, info fs.FileInfo, err error) error {
+		if strings.Contains(info.Name(), "lwjgl") || strings.Contains(info.Name(), "java-objc-bridge") {
 			nClassPath = append(nClassPath, path)
 		}
 		return err
@@ -38,7 +38,7 @@ func main() {
 	}
 
 	for _, v := range strings.Split(classPathStr, ":") {
-		if !strings.Contains(v, "lwjgl") {
+		if !strings.Contains(v, "lwjgl") && !strings.Contains(v, "java-objc-bridge") {
 			nClassPath = append(nClassPath, v)
 		}
 	}
@@ -49,6 +49,7 @@ func main() {
 		cmd.Env = append(os.Environ(), "CLASSPATH=")
 	}
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	//println(strings.Join(nClassPath, ":"))
 
