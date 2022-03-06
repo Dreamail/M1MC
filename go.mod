@@ -1,4 +1,4 @@
-module M1MC
+module m1mc
 
 go 1.17
 
