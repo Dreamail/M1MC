@@ -1,5 +1,5 @@
-libraries/
-natives/
+libraries/**
+natives/**
 temp/
 /m1mc
 /go.sum
