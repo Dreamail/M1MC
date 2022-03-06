@@ -18,11 +18,17 @@ import (
 var wg sync.WaitGroup
 
 func main() {
-	getLibs()
-
 	args := os.Args
 	proPath, _ := filepath.Abs(args[0])
 	basePath := filepath.Dir(proPath)
+
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.Chdir(basePath)
+	getLibs()
+
 	isEnv := os.Getenv("CLASSPATH") != ""
 	classPathIndex := 0
 
@@ -54,6 +60,7 @@ func main() {
 		}
 	}
 
+	os.Chdir(pwd)
 	args[classPathIndex] = strings.Join(nClassPath, ":")
 	cmd := exec.Command(args[1], args[2:]...)
 	if isEnv {
