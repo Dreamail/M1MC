@@ -81,6 +81,15 @@ func getLibs() {
 	lwjgls := []string{"lwjgl", "lwjgl-glfw", "lwjgl-jemalloc", "lwjgl-tinyfd", "lwjgl-stb", "lwjgl-opengl", "lwjgl-openal"}
 	metaUrls := []string{"https://repo1.maven.org/maven2/ca/weblite/java-objc-bridge/maven-metadata.xml", "https://repo1.maven.org/maven2/org/lwjgl/lwjgl/maven-metadata.xml"}
 
+	files, err := os.ReadDir("libraries/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(files) == len(lwjgls)+1 {
+		log.Println("libraries already downloaded")
+		return
+	}
+
 	lwjglVersion := ""
 	ObjCVersion := ""
 
@@ -186,7 +195,7 @@ func getLibs() {
 
 		jarUrl := "https://repo1.maven.org/maven2/ca/weblite/java-objc-bridge/" + ObjCVersion + "/" + "java-objc-bridge-" + ObjCVersion + ".jar"
 
-		resp, err := grab.Get("temp/", jarUrl)
+		resp, err := grab.Get("libraries/", jarUrl)
 		if err != nil {
 			log.Fatal(err)
 		}
