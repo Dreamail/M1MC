@@ -2,5 +2,3 @@ libraries/**
 natives/**
 temp/
 /m1mc
-/go.sum
-/.idea/vcs.xml
