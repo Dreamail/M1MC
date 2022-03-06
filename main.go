@@ -81,6 +81,15 @@ func getLibs() {
 	lwjgls := []string{"lwjgl", "lwjgl-glfw", "lwjgl-jemalloc", "lwjgl-tinyfd", "lwjgl-stb", "lwjgl-opengl", "lwjgl-openal"}
 	metaUrls := []string{"https://repo1.maven.org/maven2/ca/weblite/java-objc-bridge/maven-metadata.xml", "https://repo1.maven.org/maven2/org/lwjgl/lwjgl/maven-metadata.xml"}
 
+	for _, v := range []string{"libraries", "natives", "temp"} {
+		err := os.Mkdir(v, 0770)
+		if err != nil {
+			if !strings.Contains(err.Error(), "file exists") {
+				log.Fatal(err)
+			}
+		}
+	}
+
 	files, err := os.ReadDir("libraries/")
 	if err != nil {
 		log.Fatal(err)
@@ -99,15 +108,6 @@ func getLibs() {
 			return nil
 		},
 	}*/
-
-	for _, v := range []string{"libraries", "natives", "temp"} {
-		err := os.Mkdir(v, 0770)
-		if err != nil {
-			if !strings.Contains(err.Error(), "file exists") {
-				log.Fatal(err)
-			}
-		}
-	}
 
 	for _, v := range metaUrls {
 		resp, err := http.Get(v)
