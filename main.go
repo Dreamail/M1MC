@@ -19,41 +19,50 @@ var wg sync.WaitGroup
 
 func main() {
 	args := os.Args
-	proPath, _ := filepath.Abs(args[0])
-	basePath := filepath.Dir(proPath)
+	err := os.Mkdir(os.Getenv("INST_MC_DIR")+"/m1mc", 0770)
+	if err != nil {
+		if !strings.Contains(err.Error(), "file exists") {
+			log.Fatal(err)
+		}
+	}
+	workDir := os.Getenv("INST_MC_DIR") + "/m1mc"
 
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	os.Chdir(basePath)
+	os.Chdir(workDir)
 	getLibs()
 
 	isEnv := os.Getenv("CLASSPATH") != ""
+	classPathStr := ""
 	classPathIndex := 0
+	nativeIndex := 0
+
+	for i, arg := range args {
+		if arg == "-cp" {
+			classPathIndex = i + 1
+			classPathStr = args[i+1]
+		}
+		if strings.Contains(arg, "-Djava.library.path") {
+			nativeIndex = i
+		}
+		if (classPathIndex != 0 && nativeIndex != 0) || (isEnv && nativeIndex != 0) {
+			break
+		}
+	}
+
+	if isEnv {
+		classPathStr = os.Getenv("CLASSPATH")
+	}
 
 	nClassPath := make([]string, 0)
-	filepath.Walk(basePath+"/libraries/", func(path string, info fs.FileInfo, err error) error {
+	filepath.Walk(workDir+"/libraries/", func(path string, info fs.FileInfo, err error) error {
 		if strings.Contains(info.Name(), "lwjgl") || strings.Contains(info.Name(), "java-objc-bridge") {
 			nClassPath = append(nClassPath, path)
 		}
 		return err
 	})
-
-	classPathStr := ""
-
-	if isEnv {
-		classPathStr = os.Getenv("CLASSPATH")
-	} else {
-		for i, arg := range args {
-			if arg == "-cp" {
-				classPathIndex = i + 1
-				classPathStr = args[i+1]
-				break
-			}
-		}
-	}
-
 	for _, v := range strings.Split(classPathStr, ":") {
 		if !strings.Contains(v, "lwjgl") && !strings.Contains(v, "java-objc-bridge") {
 			nClassPath = append(nClassPath, v)
@@ -62,23 +71,14 @@ func main() {
 
 	os.Chdir(pwd)
 	args[classPathIndex] = strings.Join(nClassPath, ":")
+	args[nativeIndex] = "-Djava.library.path=" + workDir + "/natives"
+	println(strings.Join(args, " "))
 	cmd := exec.Command(args[1], args[2:]...)
 	if isEnv {
 		cmd.Env = append(os.Environ(), "CLASSPATH=")
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
-	//println(strings.Join(nClassPath, ":"))
-
-	/*var stdout bytes.Buffer
-
-	err := cmd.Run()
-	println(string(stdout.Bytes()))
-	if err != nil {
-		println(err.Error())
-		return
-	}*/
 
 	cmd.Run()
 }
@@ -108,13 +108,6 @@ func getLibs() {
 
 	lwjglVersion := ""
 	ObjCVersion := ""
-
-	/*client := http.Client{
-		CheckRedirect: func(r *http.Request, via []*http.Request) error {
-			r.URL.Opaque = r.URL.Path
-			return nil
-		},
-	}*/
 
 	for _, v := range metaUrls {
 		resp, err := http.Get(v)
